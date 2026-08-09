@@ -1,0 +1,44 @@
+{
+    "courses": [
+        {
+            "name": "Bachelor of Computer Applications",
+            "short_name": "BCA",
+            "level": "Undergraduate",
+            "programme_group": "B.Sc. Physical Sciences",
+            "department": "Computer Applications",
+            "source": "NGC Admissions Brochure 2026-27"
+        },
+        {
+            "name": "B.Com (Computer Applications)",
+            "short_name": "B.Com CA",
+            "level": "Undergraduate",
+            "programme_group": "Bachelor of Commerce",
+            "department": "Commerce",
+            "source": "NGC Admissions Brochure 2026-27"
+        },
+        {
+            "name": "B.Com (Business Analytics)",
+            "short_name": "B.Com Business Analytics",
+            "level": "Undergraduate",
+            "programme_group": "Bachelor of Commerce",
+            "department": "Commerce",
+            "source": "NGC Admissions Brochure 2026-27"
+        },
+        {
+            "name": "B.Com (Finance)",
+            "short_name": "B.Com Finance",
+            "level": "Undergraduate",
+            "programme_group": "Bachelor of Commerce",
+            "department": "Commerce",
+            "source": "NGC Admissions Brochure 2026-27"
+        },
+        {
+            "name": "Bachelor of Business Administration",
+            "short_name": "BBA",
+            "level": "Undergraduate",
+            "programme_group": "Bachelor of Business Administration",
+            "department": "Business Administration",
+            "source": "NGC Admissions Brochure 2026-27"
+        }
+    ]
+}

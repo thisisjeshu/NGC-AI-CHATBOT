@@ -1,0 +1,49 @@
+{
+    "faqs": [
+        {
+            "question": "What does BCA stand for?",
+            "answer": "BCA stands for Bachelor of Computer Applications."
+        },
+        {
+            "question": "What is NGC AI?",
+            "answer": "NGC AI is an AI-powered college assistant designed to help students and faculty find useful academic and college-related information."
+        },
+        {
+            "question": "Which BCA course does the college offer?",
+            "answer": "The available college information lists Bachelor of Computer Applications (BCA) as an undergraduate course under the Computer Applications department."
+        },
+        {
+            "question": "What department offers BCA?",
+            "answer": "The available college information lists the Computer Applications department for BCA."
+        },
+        {
+            "question": "What is the official name of the college?",
+            "answer": "The official name of the college is Nagarjuna Government College (Autonomous)."
+        },
+        {
+            "question": "Where is Nagarjuna Government College located?",
+            "answer": "Nagarjuna Government College is located in Nalgonda, Telangana, India."
+        },
+        {
+            "question": "What is the college code for Nagarjuna Government College?",
+            "answer": "The college code for Nagarjuna Government College is 4028."
+        },
+        {
+            "question": "Who is the principal of Nagarjuna Government College?",
+            "answer": "The principal of Nagarjuna Government College is Prof. S. Upender, M.Sc., Ph.D."
+        },
+        {
+            "question": "What is the official website of Nagarjuna Government College?",
+            "answer": "The official website of Nagarjuna Government College is https://ngcollegenalgonda.ac.in/"
+        },
+        {
+            "question": "What are the contact details for Nagarjuna Government College?",
+            "answer": "You can contact Nagarjuna Government College via email at nalgonda.jkc@gmail.com or by phone at 9848696776."
+        },
+        {
+            "question": "What B.Com programmes are available?",
+            "answer": "The NGC Admissions Brochure 2026-27 lists B.Com (Computer Applications), B.Com (Business Analytics), and B.Com (Finance).",
+            "source": "NGC Admissions Brochure 2026-27"
+        }
+    ]
+}

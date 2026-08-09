@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NGC AI — College AI Assistant</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- Header -->
+        <header class="header">
+            <div class="brand">
+                <div class="logo">NGC</div>
+
+                <div>
+                    <h1>NGC AI</h1>
+                    <p>College AI Assistant</p>
+                </div>
+            </div>
+
+            <button id="clearChat" class="clear-btn">
+                Clear
+            </button>
+        </header>
+
+
+        <!-- Chat Area -->
+        <main id="chatContainer" class="chat-container">
+
+            <div class="welcome">
+                <div class="welcome-icon">✦</div>
+
+                <h2>Hello 👋</h2>
+
+                <p>
+                    I'm NGC AI, your college assistant.
+                    Ask me anything to get started.
+                </p>
+
+                <div class="suggestions">
+                    <button class="suggestion">
+                        What can you help me with?
+                    </button>
+
+                    <button class="suggestion">
+                        Tell me about BCA
+                    </button>
+
+                    <button class="suggestion">
+                        How can I use this chatbot?
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+
+        <!-- Input Area -->
+        <footer class="input-area">
+
+            <form id="chatForm">
+
+                <div class="input-wrapper">
+
+                    <textarea
+                        id="messageInput"
+                        placeholder="Ask anything..."
+                        rows="1"
+                        autocomplete="off"
+                    ></textarea>
+
+                    <button
+                        type="submit"
+                        id="sendButton"
+                        aria-label="Send message"
+                    >
+                        ➤
+                    </button>
+
+                </div>
+
+                <p class="disclaimer">
+                    NGC AI can make mistakes. Verify important information.
+                </p>
+
+            </form>
+
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

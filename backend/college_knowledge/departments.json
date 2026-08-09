@@ -1,0 +1,9 @@
+{
+    "departments": [
+        {
+            "name": "Computer Applications",
+            "short_name": "BCA",
+            "description": "Department offering undergraduate computer application education."
+        }
+    ]
+}

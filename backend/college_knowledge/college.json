@@ -1,0 +1,30 @@
+{
+    "college": {
+        "name": "Nagarjuna Government College",
+        "official_name": "Nagarjuna Government College (Autonomous)",
+        "location": "Nalgonda, Telangana, India",
+        "address": "Hyderabad Road, Nalgonda - 508001",
+        "type": "Government Autonomous Degree College",
+        "affiliating_university": "Mahatma Gandhi University, Nalgonda",
+        "college_code": "4028",
+        "email": "nalgonda.jkc@gmail.com",
+        "phone": "9848696776",
+        "principal": "Prof. S. Upender, M.Sc., Ph.D.",
+        "ai_assistant_name": "NGC AI",
+        "official_website": "https://ngcollegenalgonda.ac.in/"
+    },
+    "sources": [
+        {
+            "name": "Official College Website",
+            "url": "https://ngcollegenalgonda.ac.in/"
+        },
+        {
+            "name": "UGC Autonomous Colleges List",
+            "url": "https://www.ugc.gov.in/colleges/Autonomous_Colleges_list"
+        },
+        {
+            "name": "Mahatma Gandhi University",
+            "url": "https://www.mguniversity.ac.in/"
+        }
+    ]
+}
