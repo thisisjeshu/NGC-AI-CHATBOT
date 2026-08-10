@@ -8,6 +8,9 @@ from pydantic import BaseModel
 from google import genai
 
 from backend.semantic_retriever import semantic_search
+from backend.routers import notices
+from backend.routers import events
+from backend.routers import auth
 
 # Load environment variables
 load_dotenv()
@@ -28,7 +31,9 @@ app = FastAPI(
     description="AI-powered assistant for college students and faculty",
     version="0.1.0"
 )
-
+app.include_router(notices.router)
+app.include_router(events.router)
+app.include_router(auth.router)
 
 # CORS configuration
 app.add_middleware(

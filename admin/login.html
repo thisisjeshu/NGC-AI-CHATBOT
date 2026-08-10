@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NGC AI — Admin Login</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="login-page">
+
+    <main class="login-container">
+
+        <div class="login-card">
+
+            <div class="login-logo">
+                NGC
+            </div>
+
+            <h1>NGC AI</h1>
+
+            <p class="login-subtitle">
+                College Management Portal
+            </p>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Enter username"
+                        autocomplete="username"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <input
+                        type="password"
+                        id="password"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                        required
+                    >
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="login-button"
+                >
+                    Sign In
+                </button>
+
+            </form>
+
+            <p
+                id="loginError"
+                class="login-error"
+            ></p>
+
+            <p class="login-footer">
+                Authorized college management only
+            </p>
+
+        </div>
+
+    </main>
+
+    <script>
+    const API_URL = "http://127.0.0.1:8000";
+
+    const form = document.getElementById("loginForm");
+    const error = document.getElementById("loginError");
+
+    form.addEventListener("submit", async (event) => {
+
+        event.preventDefault();
+
+        error.textContent = "";
+
+        const username =
+            document.getElementById("username").value.trim();
+
+        const password =
+            document.getElementById("password").value;
+
+        try {
+
+            const response = await fetch(
+                `${API_URL}/admin/auth/login`,
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        username,
+                        password
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.detail || "Login failed"
+                );
+            }
+
+            localStorage.setItem(
+                "ngc_admin_token",
+                data.access_token
+            );
+
+            localStorage.setItem(
+                "ngc_admin_username",
+                data.username
+            );
+
+            localStorage.setItem(
+                "ngc_admin_role",
+                data.role
+            );
+
+            window.location.replace("index.html");
+
+        } catch (error) {
+
+            document.getElementById(
+                "loginError"
+            ).textContent = error.message;
+
+        }
+
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>NGC AI — Admin Portal</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+    <!-- Authentication Check -->
+
+    <script>
+
+        const token =
+            localStorage.getItem("ngc_admin_token");
+
+        if (!token) {
+            window.location.replace("login.html");
+        }
+
+    </script>
+
+
+    <!-- Sidebar -->
+
+    <aside class="sidebar">
+
+        <div class="brand">
+
+            <div class="logo">
+                NGC
+            </div>
+
+            <div>
+
+                <strong>
+                    NGC AI
+                </strong>
+
+                <span>
+                    Admin Portal
+                </span>
+
+            </div>
+
+        </div>
+
+
+        <nav>
+
+            <button class="nav-item active">
+                Dashboard
+            </button>
+
+            <button class="nav-item">
+                Notices
+            </button>
+
+            <button class="nav-item">
+                Events
+            </button>
+
+            <button class="nav-item">
+                Departments
+            </button>
+
+            <button class="nav-item">
+                Programmes
+            </button>
+
+            <button class="nav-item">
+                Faculty
+            </button>
+
+            <button class="nav-item">
+                Media
+            </button>
+
+            <button class="nav-item">
+                Documents
+            </button>
+
+        </nav>
+
+
+        <div class="sidebar-footer">
+
+            <span>
+                NGC AI
+            </span>
+
+            <small>
+                Content Management
+            </small>
+
+            <button
+                class="nav-item"
+                onclick="logout()"
+            >
+                Logout
+            </button>
+
+        </div>
+
+    </aside>
+
+
+    <!-- Main -->
+
+    <main class="main">
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+                    Dashboard
+                </h1>
+
+                <p>
+                    Manage college information used by NGC AI.
+                </p>
+
+            </div>
+
+
+            <div class="admin-profile">
+
+                <div class="avatar">
+                    A
+                </div>
+
+                <div>
+
+                    <strong>
+                        Administrator
+                    </strong>
+
+                    <small>
+                        College Management
+                    </small>
+
+                </div>
+
+            </div>
+
+        </header>
+
+
+        <!-- Statistics -->
+
+        <section class="stats">
+
+            <div class="stat-card">
+
+                <span>
+                    Notices
+                </span>
+
+                <strong id="noticeCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span>
+                    Events
+                </span>
+
+                <strong id="eventCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span>
+                    Departments
+                </span>
+
+                <strong>
+                    1
+                </strong>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <span>
+                    Programmes
+                </span>
+
+                <strong>
+                    1
+                </strong>
+
+            </div>
+
+        </section>
+
+
+        <!-- Content -->
+
+        <section class="content-grid">
+
+
+            <!-- Notices -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Recent Notices
+                        </h2>
+
+                        <p>
+                            Latest information published to NGC AI.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="addNoticeBtn"
+                        class="primary-btn"
+                    >
+                        + Add Notice
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="noticesList"
+                    class="list"
+                >
+
+                    <div class="empty">
+                        No notices available.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Events -->
+
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+
+                        <h2>
+                            Upcoming Events
+                        </h2>
+
+                        <p>
+                            College events and activities.
+                        </p>
+
+                    </div>
+
+
+                    <button
+                        id="addEventBtn"
+                        class="primary-btn"
+                    >
+                        + Add Event
+                    </button>
+
+                </div>
+
+
+                <div
+                    id="eventsList"
+                    class="list"
+                >
+
+                    <div class="empty">
+                        No events available.
+                    </div>
+
+                </div>
+
+            </div>
+
+
+        </section>
+
+    </main>
+
+
+    <!-- Dashboard JavaScript -->
+
+    <script src="app.js"></script>
+
+</body>
+
+</html>
