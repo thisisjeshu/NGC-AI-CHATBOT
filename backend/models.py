@@ -89,6 +89,14 @@ class Notice(Base):
         DateTime
     )
 
+    image_url: Mapped[str | None] = mapped_column(
+    String(500)
+)
+
+    document_url: Mapped[str | None] = mapped_column(
+    String(500)
+)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
@@ -128,6 +136,11 @@ class Event(Base):
     image_url: Mapped[str | None] = mapped_column(
         String(500)
     )
+
+    document_url: Mapped[str | None] = mapped_column(
+    String(500),
+    nullable=True
+)
 
     registration_url: Mapped[str | None] = mapped_column(
         String(500)

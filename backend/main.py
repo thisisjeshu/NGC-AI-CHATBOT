@@ -12,6 +12,8 @@ from backend.routers import notices
 from backend.routers import events
 from backend.routers import auth
 
+from fastapi.staticfiles import StaticFiles
+
 # Load environment variables
 load_dotenv()
 
@@ -184,3 +186,16 @@ IMPORTANT RULES:
             status_code=500,
             detail=str(e)
         )
+
+
+app = FastAPI(
+    title="College AI Chatbot",
+    description="AI-powered assistant for college students and faculty",
+    version="0.1.0"
+)
+
+app.mount(
+    "/uploads",
+    StaticFiles(directory="backend/uploads"),
+    name="uploads"
+)
