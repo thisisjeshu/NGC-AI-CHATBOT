@@ -323,3 +323,37 @@ class SourceDocument(Base):
         onupdate=datetime.utcnow,
         nullable=False
     )
+
+class DocumentChunk(Base):
+    __tablename__ = "document_chunks"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True
+    )
+
+    document_id: Mapped[int] = mapped_column(
+        ForeignKey("source_documents.id"),
+        nullable=False,
+        index=True
+    )
+
+    chunk_index: Mapped[int] = mapped_column(
+        nullable=False
+    )
+
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False
+    )
+
+    content_hash: Mapped[str | None] = mapped_column(
+        String(64),
+        index=True
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
