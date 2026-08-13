@@ -208,3 +208,118 @@ class AdminUser(Base):
         default=datetime.utcnow,
         nullable=False
     )
+
+
+class Source(Base):
+    __tablename__ = "sources"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True
+    )
+
+    name: Mapped[str] = mapped_column(
+        String(200),
+        nullable=False
+    )
+
+    url: Mapped[str] = mapped_column(
+        String(500),
+        unique=True,
+        nullable=False
+    )
+
+    source_type: Mapped[str] = mapped_column(
+        String(50),
+        nullable=False
+    )
+
+    authority: Mapped[str | None] = mapped_column(
+        String(200)
+    )
+
+    description: Mapped[str | None] = mapped_column(
+        Text
+    )
+
+    active: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        nullable=False
+    )
+
+    last_crawled_at: Mapped[datetime | None] = mapped_column(
+        DateTime
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )
+
+class SourceDocument(Base):
+    __tablename__ = "source_documents"
+
+    id: Mapped[int] = mapped_column(
+        primary_key=True,
+        index=True
+    )
+
+    source_id: Mapped[int] = mapped_column(
+        ForeignKey("sources.id"),
+        nullable=False,
+        index=True
+    )
+
+    title: Mapped[str | None] = mapped_column(
+        String(500)
+    )
+
+    url: Mapped[str] = mapped_column(
+        String(1000),
+        unique=True,
+        nullable=False
+    )
+
+    content: Mapped[str] = mapped_column(
+        Text,
+        nullable=False
+    )
+
+    content_hash: Mapped[str | None] = mapped_column(
+        String(64),
+        index=True
+    )
+
+    status: Mapped[str] = mapped_column(
+        String(50),
+        default="active",
+        nullable=False
+    )
+
+    fetched_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        nullable=False
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False
+    )

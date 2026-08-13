@@ -13,6 +13,7 @@ from backend.routers import events
 from backend.routers import auth
 
 from fastapi.staticfiles import StaticFiles
+from backend.routers import sources
 
 # Load environment variables
 load_dotenv()
@@ -36,6 +37,7 @@ app = FastAPI(
 app.include_router(notices.router)
 app.include_router(events.router)
 app.include_router(auth.router)
+app.include_router(sources.router)
 
 # CORS configuration
 app.add_middleware(
@@ -186,16 +188,3 @@ IMPORTANT RULES:
             status_code=500,
             detail=str(e)
         )
-
-
-app = FastAPI(
-    title="College AI Chatbot",
-    description="AI-powered assistant for college students and faculty",
-    version="0.1.0"
-)
-
-app.mount(
-    "/uploads",
-    StaticFiles(directory="backend/uploads"),
-    name="uploads"
-)
