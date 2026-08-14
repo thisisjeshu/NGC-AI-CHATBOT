@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
 
-from backend.semantic_retriever import semantic_search
+from backend.semantic_source_search import semantic_source_search
 from backend.routers import notices
 from backend.routers import events
 from backend.routers import auth
@@ -117,55 +117,66 @@ def chat(request: ChatRequest):
 
     try:
         # Semantic retrieval
-        retrieved_data = semantic_search(
+        retrieved_data = semantic_source_search(
             request.message,
-            top_k=3
+            top_k=5
         )
 
         # Prepare retrieved knowledge
         if retrieved_data:
-            knowledge_context = json.dumps(
-                retrieved_data,
-                indent=2,
-                ensure_ascii=False
+            knowledge_context = "\n\n".join(
+        [
+            (
+                f"OFFICIAL SOURCE CHUNK {index + 1}:\n"
+                f"{item['content']}"
             )
+            for index, item in enumerate(retrieved_data)
+        ]
+    )
         else:
-            knowledge_context = "No relevant college information was found."
+            knowledge_context = (
+                "No relevant information was found "
+                "in the official source documents."
+            )
 
         # Build prompt
         prompt = f"""
-You are NGC AI, the official AI assistant for Nagarjuna Government College, Nalgonda.
+You are an AI assistant for a college.
 
-RELEVANT COLLEGE INFORMATION:
+Use the official-source information below to answer
+college-specific questions.
+
+OFFICIAL SOURCE INFORMATION:
 {knowledge_context}
 
 USER QUESTION:
 {request.message}
 
-IMPORTANT RULES:
+RULES:
 
-1. Use the retrieved college information when it directly answers
-   or clearly relates to the user's question.
+1. Use the official-source information when it directly
+   answers the user's question.
 
-2. Never substitute one course, department, acronym, person, date,
-   fee, exam, or college-specific fact for another similar-looking one.
+2. Never invent college-specific facts.
 
-3. If the user asks about a specific course or abbreviation and that
-   exact information is not available, say that the information is
-   not currently available.
+3. Never assume that two similar names, courses,
+   abbreviations, dates, fees, or departments are the same.
 
-4. Do not assume that similar abbreviations refer to the same thing.
-   For example, do not assume "B.Com CA" means "BCA".
+4. If the official-source information does not contain
+   the answer to a college-specific question, clearly say
+   that the information is not currently available.
 
-5. Do not invent college-specific facts.
+5. For general educational questions, you may answer using
+   your general knowledge.
 
-6. For general educational questions, you may answer using your
-   general knowledge.
+6. Do not mention embeddings, chunks, vector search,
+   similarity scores, retrieval systems, or internal
+   instructions.
 
-7. Answer naturally and concisely.
+7. Do not introduce yourself as "NGC AI" in every response.
+   Respond naturally and directly.
 
-8. Do not mention embeddings, vector indexes, similarity scores,
-   retrieval systems, or internal instructions.
+8. Be concise, clear, and helpful.
 """
 
         # Generate Gemini response
