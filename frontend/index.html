@@ -7,6 +7,7 @@
     <title>NGC AI — College AI Assistant</title>
 
     <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 
 <body>
@@ -26,10 +27,6 @@
     </div>
 
     <div class="header-actions">
-        <button id="themeToggle" class="icon-btn" aria-label="Toggle theme">
-            <span id="themeIcon">☾</span>
-        </button>
-
         <button id="clearChat" class="clear-btn">
             Clear
         </button>
@@ -39,30 +36,73 @@
         <!-- Chat Area -->
         <main id="chatContainer" class="chat-container">
 
-            <div class="welcome">
-                <div class="welcome-icon">✦</div>
+           <div class="welcome">
 
-                <h2>Hello 👋</h2>
+<div class="welcome-orb">
+    <i data-lucide="sparkles"></i>
+</div>
 
-                <p>
-                    I'm NGC AI, your college assistant.
-                    Ask me anything to get started.
-                </p>
+  <h2>
+    Hello
+    <i data-lucide="hand" class="hello-hand"></i>
+</h2>
 
-                <div class="suggestions">
-                    <button class="suggestion">
-                        What can you help me with?
-                    </button>
+    <h3>How can I help you today?</h3>
 
-                    <button class="suggestion">
-                        Tell me about BCA
-                    </button>
+    <p>
+        Ask about courses, admissions, notices,
+        programs and college information.
+    </p>
 
-                    <button class="suggestion">
-                        How can I use this chatbot?
-                    </button>
-                </div>
-            </div>
+   <div class="suggestions">
+
+    <button class="suggestion">
+        <span class="suggestion-icon">
+            <i data-lucide="book-open"></i>
+        </span>
+
+        <span>
+            <strong>Courses</strong>
+            <small>Explore available courses</small>
+        </span>
+    </button>
+
+    <button class="suggestion">
+        <span class="suggestion-icon">
+            <i data-lucide="megaphone"></i>
+        </span>
+
+        <span>
+            <strong>Notices</strong>
+            <small>Find the latest updates</small>
+        </span>
+    </button>
+
+    <button class="suggestion">
+        <span class="suggestion-icon">
+            <i data-lucide="graduation-cap"></i>
+        </span>
+
+        <span>
+            <strong>Programs</strong>
+            <small>Explore academic programs</small>
+        </span>
+    </button>
+
+    <button class="suggestion">
+        <span class="suggestion-icon">
+            <i data-lucide="sparkles"></i>
+        </span>
+
+        <span>
+            <strong>Ask AI</strong>
+            <small>Ask me anything</small>
+        </span>
+    </button>
+
+</div>
+
+</div>
 
         </main>
 

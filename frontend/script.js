@@ -223,3 +223,5 @@ messageInput.addEventListener(
 
     }
 );
+
+lucide.createIcons();
