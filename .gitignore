@@ -31,3 +31,9 @@ Thumbs.db
 *.db
 *.sqlite
 *.sqlite3
+
+
+# Node
+node_modules/
+npm-debug.log*
+package-lock.json

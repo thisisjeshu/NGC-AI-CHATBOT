@@ -3,42 +3,360 @@ const messageInput = document.getElementById("messageInput");
 const chatContainer = document.getElementById("chatContainer");
 const sendButton = document.getElementById("sendButton");
 const clearChat = document.getElementById("clearChat");
+// Conversation history
+let conversationHistory = [];
+
+// =========================================
+// THINKING STATE
+// =========================================
+
+let thinkingTimer = null;
 
 
-// Add a message to the chat
+// =========================================
+// ADD MESSAGE
+// =========================================
+
 function addMessage(message, sender) {
 
-    const messageElement = document.createElement("div");
+    const messageElement =
+        document.createElement("div");
 
-    messageElement.classList.add("message", sender);
+    messageElement.classList.add(
+        "message",
+        sender
+    );
 
-    const content = document.createElement("div");
+    const content =
+        document.createElement("div");
 
-    content.classList.add("message-content");
+    content.classList.add(
+        "message-content"
+    );
 
-    content.textContent = message;
 
-    messageElement.appendChild(content);
+    // AI messages → Markdown
+    if (sender === "ai") {
 
-    chatContainer.appendChild(messageElement);
+        if (
+            typeof marked !== "undefined" &&
+            typeof DOMPurify !== "undefined"
+        ) {
 
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+            const rendered =
+                marked.parse(message, {
+                    gfm: true,
+                    breaks: true
+                });
+
+            content.innerHTML =
+                DOMPurify.sanitize(rendered);
+
+        } else {
+
+            content.textContent = message;
+
+        }
+
+    }
+
+    // User messages → plain text
+    else {
+
+        content.textContent = message;
+
+    }
+
+
+    messageElement.appendChild(
+        content
+    );
+
+    chatContainer.appendChild(
+        messageElement
+    );
+
+    chatContainer.scrollTop =
+        chatContainer.scrollHeight;
 
     return messageElement;
 }
 
 
-// Show loading message
+// =========================================
+// SHOW AI THINKING
+// =========================================
+
 function showLoading() {
 
-    return addMessage(
-        "Thinking...",
+    const message = addMessage(
+        "",
         "ai"
     );
+
+    const content =
+        message.querySelector(
+            ".message-content"
+        );
+
+    if (!content) {
+        return message;
+    }
+
+
+    content.innerHTML = `
+
+        <div class="thinking-state">
+
+            <div
+                class="thinking-orb"
+                data-state="searching"
+                aria-label="AI is thinking"
+            >
+
+                <span
+                    class="orb-ring ring-1"
+                ></span>
+
+                <span
+                    class="orb-ring ring-2"
+                ></span>
+
+                <span
+                    class="orb-core"
+                ></span>
+
+            </div>
+
+
+            <span class="thinking-label">
+                Searching...
+            </span>
+
+        </div>
+
+    `;
+
+
+    const orb =
+        content.querySelector(
+            ".thinking-orb"
+        );
+
+    const label =
+        content.querySelector(
+            ".thinking-label"
+        );
+
+
+    // Thinking states
+    const states = [
+
+        {
+            state: "searching",
+            text: "Searching..."
+        },
+
+        {
+            state: "weaving",
+            text: "Finding relevant information..."
+        },
+
+        {
+            state: "composing",
+            text: "Composing..."
+        }
+
+    ];
+
+
+    let index = 0;
+
+
+    thinkingTimer =
+        setInterval(() => {
+
+            index++;
+
+            if (
+                index >=
+                states.length
+            ) {
+                return;
+            }
+
+
+            const current =
+                states[index];
+
+
+            // Change orb state
+            orb.dataset.state =
+                current.state;
+
+
+            // Animate text transition
+            label.style.opacity = "0";
+
+
+            setTimeout(() => {
+
+                label.textContent =
+                    current.text;
+
+                label.style.opacity = "1";
+
+            }, 150);
+
+
+        }, 1600);
+
+
+    return message;
 }
 
 
-// Send message
+// =========================================
+// STOP THINKING
+// =========================================
+
+function stopThinking() {
+
+    if (thinkingTimer) {
+
+        clearInterval(
+            thinkingTimer
+        );
+
+        thinkingTimer = null;
+    }
+}
+
+
+// =========================================
+// SEND MESSAGE
+// =========================================
+
+async function sendMessage(message) {
+
+    if (!message || !message.trim()) {
+        return;
+    }
+
+
+    // Add user message
+    addMessage(
+        message,
+        "user"
+    );
+
+
+    // Disable controls
+    sendButton.disabled = true;
+    messageInput.disabled = true;
+
+
+    // Show AI thinking animation
+    const loadingMessage =
+        showLoading();
+
+
+    try {
+
+        const response =
+            await fetch(
+                "http://127.0.0.1:8000/chat",
+                {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body: JSON.stringify({
+                        message: message,
+                        history: conversationHistory
+                    })
+                }
+            );
+
+
+
+
+        // Check server response
+        if (!response.ok) {
+
+            throw new Error(
+                `Server error: ${response.status}`
+            );
+        }
+
+
+        // Read response
+        const data =
+            await response.json();
+
+
+        // Stop thinking animation
+        stopThinking();
+
+
+        // Remove thinking message
+        loadingMessage.remove();
+
+
+        // Add AI response
+        addMessage(
+            data.response,
+            "ai"
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "Chat error:",
+            error
+        );
+
+
+        // Stop thinking animation
+        stopThinking();
+
+
+        // Remove thinking message
+        loadingMessage.remove();
+
+
+        // Show error
+        addMessage(
+            "Sorry, I couldn't connect to the AI server. Please try again.",
+            "ai"
+        );
+
+
+    } finally {
+
+        // Re-enable controls
+        sendButton.disabled = false;
+        messageInput.disabled = false;
+
+
+        // Focus input
+        messageInput.focus();
+
+
+        // Scroll to bottom
+        chatContainer.scrollTo({
+            top:
+                chatContainer.scrollHeight,
+            behavior: "smooth"
+        });
+
+    }
+}
+
 async function sendMessage(message) {
 
     addMessage(message, "user");
@@ -60,7 +378,8 @@ async function sendMessage(message) {
                 },
 
                 body: JSON.stringify({
-                    message: message
+                    message: message,
+                    history: conversationHistory
                 })
             }
         );
@@ -71,13 +390,13 @@ async function sendMessage(message) {
             throw new Error(
                 `Server error: ${response.status}`
             );
+
         }
 
 
         const data = await response.json();
 
 
-        // Remove "Thinking..."
         loadingMessage.remove();
 
 
@@ -85,6 +404,18 @@ async function sendMessage(message) {
             data.response,
             "ai"
         );
+
+
+        // Save conversation
+        conversationHistory.push({
+            role: "user",
+            content: message
+        });
+
+        conversationHistory.push({
+            role: "assistant",
+            content: data.response
+        });
 
 
     } catch (error) {
@@ -108,75 +439,167 @@ async function sendMessage(message) {
 }
 
 
-// Form submission
+// =========================================
+// FORM SUBMISSION
+// =========================================
+
 chatForm.addEventListener(
     "submit",
     function (event) {
 
         event.preventDefault();
 
-        const message = messageInput.value.trim();
+
+        const message =
+            messageInput.value.trim();
+
 
         if (!message) {
             return;
         }
 
+
+        // Clear input
         messageInput.value = "";
 
-        sendMessage(message);
-    }
-);
 
-
-// Suggestion buttons
-document.querySelectorAll(".suggestion").forEach(
-    button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const message = button.textContent.trim();
-
-                sendMessage(message);
-            }
+        // Send message
+        sendMessage(
+            message
         );
 
     }
 );
 
 
-// Clear chat
+// =========================================
+// SUGGESTION BUTTONS
+// =========================================
+
+function connectSuggestionButtons() {
+
+    document
+        .querySelectorAll(".suggestion")
+        .forEach(button => {
+
+            button.addEventListener(
+                "click",
+                () => {
+
+                    const message =
+                        button.textContent.trim();
+
+
+                    if (!message) {
+                        return;
+                    }
+
+
+                    sendMessage(
+                        message
+                    );
+
+                }
+            );
+
+        });
+}
+
+
+// Connect initial buttons
+connectSuggestionButtons();
+
+
+// =========================================
+// CLEAR CHAT
+// =========================================
+
 clearChat.addEventListener(
     "click",
     () => {
 
+        // Clear conversation history
+        conversationHistory = [];
+
+
+        // Restore the current welcome screen
         chatContainer.innerHTML = `
             <div class="welcome">
 
-                <div class="welcome-icon">
-                    ✦
+                <div class="welcome-orb">
+                    <i data-lucide="sparkles"></i>
                 </div>
 
-                <h2>Hello 👋</h2>
+                <h2>
+                    Hello
+                    <i data-lucide="hand" class="hello-hand"></i>
+                </h2>
+
+                <h3>
+                    How can I help you today?
+                </h3>
 
                 <p>
-                    I'm NGC AI, your college assistant.
-                    Ask me anything to get started.
+                    Ask about courses, admissions, notices,
+                    programs and college information.
                 </p>
+
 
                 <div class="suggestions">
 
                     <button class="suggestion">
-                        What can you help me with?
+
+                        <span class="suggestion-icon">
+                            <i data-lucide="book-open"></i>
+                        </span>
+
+                        <span>
+                            <strong>Courses</strong>
+                            <small>Explore available courses</small>
+                        </span>
+
                     </button>
 
-                    <button class="suggestion">
-                        Tell me about BCA
-                    </button>
 
                     <button class="suggestion">
-                        How can I use this chatbot?
+
+                        <span class="suggestion-icon">
+                            <i data-lucide="megaphone"></i>
+                        </span>
+
+                        <span>
+                            <strong>Notices</strong>
+                            <small>Find the latest updates</small>
+                        </span>
+
+                    </button>
+
+
+                    <button class="suggestion">
+
+                        <span class="suggestion-icon">
+                            <i data-lucide="graduation-cap"></i>
+                        </span>
+
+                        <span>
+                            <strong>Programs</strong>
+                            <small>Explore academic programs</small>
+                        </span>
+
+                    </button>
+
+
+                    <button class="suggestion">
+
+                        <span class="suggestion-icon">
+                            <i data-lucide="sparkles"></i>
+                        </span>
+
+                        <span>
+                            <strong>Ask AI</strong>
+                            <small>Ask me anything</small>
+                        </span>
+
                     </button>
 
                 </div>
@@ -184,9 +607,15 @@ clearChat.addEventListener(
             </div>
         `;
 
+
+        // Recreate Lucide icons
+        lucide.createIcons();
+
+
         // Reconnect suggestion buttons
-        document.querySelectorAll(".suggestion").forEach(
-            button => {
+        document
+            .querySelectorAll(".suggestion")
+            .forEach(button => {
 
                 button.addEventListener(
                     "click",
@@ -199,14 +628,23 @@ clearChat.addEventListener(
                     }
                 );
 
-            }
-        );
+            });
+
+
+        // Reset scroll
+        chatContainer.scrollTop = 0;
+
+
+        // Focus input
+        messageInput.focus();
 
     }
 );
 
+// =========================================
+// ENTER = SEND
+// =========================================
 
-// Enter = send
 messageInput.addEventListener(
     "keydown",
     event => {
@@ -218,10 +656,23 @@ messageInput.addEventListener(
 
             event.preventDefault();
 
+
             chatForm.requestSubmit();
+
         }
 
     }
 );
 
-lucide.createIcons();
+
+// =========================================
+// LUCIDE ICONS
+// =========================================
+
+if (
+    typeof lucide !== "undefined"
+) {
+
+    lucide.createIcons();
+
+}
