@@ -1,7 +1,11 @@
 import math
 
 from backend.database import SessionLocal
-from backend.models import DocumentChunk
+from backend.models import (
+    DocumentChunk,
+    SourceDocument,
+    Source
+)
 from backend.embedding_service import generate_embedding
 
 
@@ -41,29 +45,60 @@ def semantic_source_search(
     db = SessionLocal()
 
     try:
+
         chunks = (
-            db.query(DocumentChunk)
+            db.query(
+                DocumentChunk,
+                SourceDocument,
+                Source
+            )
+            .join(
+                SourceDocument,
+                DocumentChunk.document_id == SourceDocument.id
+            )
+            .join(
+                Source,
+                SourceDocument.source_id == Source.id
+            )
             .filter(
-                DocumentChunk.embedding.isnot(None)
+                DocumentChunk.embedding.isnot(None),
+                SourceDocument.status == "active",
+                Source.active.is_(True)
             )
             .all()
         )
 
         results = []
 
-        for chunk in chunks:
+        MIN_SIMILARITY = 0.35
+
+        for chunk, document, source in chunks:
 
             score = cosine_similarity(
                 query_embedding,
                 chunk.embedding
             )
 
-            results.append({
-                "chunk_id": chunk.id,
-                "document_id": chunk.document_id,
-                "content": chunk.content,
-                "similarity": score,
-            })
+            if score >= MIN_SIMILARITY:
+
+                results.append({
+                    "chunk_id": chunk.id,
+                    "document_id": document.id,
+                    "content": chunk.content,
+                    "similarity": score,
+
+                    "source": {
+                        "name": source.name,
+                        "url": source.url,
+                        "source_type": source.source_type,
+                        "authority": source.authority,
+                    },
+
+                    "document": {
+                        "title": document.title,
+                        "url": document.url,
+                    }
+                })
 
         results.sort(
             key=lambda item: item["similarity"],

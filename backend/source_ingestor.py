@@ -4,6 +4,7 @@ from datetime import datetime
 from backend.database import SessionLocal
 from backend.models import Source, SourceDocument, DocumentChunk
 from backend.source_fetcher import fetch_page
+from backend.embedding_service import generate_embedding
 
 
 def calculate_hash(content: str) -> str:
@@ -67,14 +68,36 @@ def ingest_source(source_id: int) -> None:
             )
             return
 
-        print(
-            f"Fetching: {source.name}"
-        )
+        print()
+        print("=" * 60)
+        print(f"Ingesting: {source.name}")
+        print(f"URL: {source.url}")
+        print("=" * 60)
+
+        # --------------------------------------------------
+        # Fetch source
+        # --------------------------------------------------
+
+        print("Fetching source...")
 
         page = fetch_page(source.url)
 
         content = page["content"]
+
+        if not content.strip():
+            raise ValueError(
+                "No readable content was extracted from the source."
+            )
+
         content_hash = calculate_hash(content)
+
+        print(
+            f"Characters extracted: {len(content)}"
+        )
+
+        # --------------------------------------------------
+        # Create or update SourceDocument
+        # --------------------------------------------------
 
         document = (
             db.query(SourceDocument)
@@ -83,10 +106,6 @@ def ingest_source(source_id: int) -> None:
             )
             .first()
         )
-
-        # --------------------------------------------------
-        # Create or update SourceDocument
-        # --------------------------------------------------
 
         if document:
 
@@ -102,15 +121,15 @@ def ingest_source(source_id: int) -> None:
 
                 return
 
+            print(
+                "Changes detected. Updating document..."
+            )
+
             document.title = page["title"]
             document.content = content
             document.content_hash = content_hash
             document.status = "active"
             document.fetched_at = datetime.utcnow()
-
-            print(
-                "Document updated."
-            )
 
         else:
 
@@ -129,12 +148,16 @@ def ingest_source(source_id: int) -> None:
             db.flush()
 
             print(
-                "Document created."
+                "New document created."
             )
 
         # --------------------------------------------------
         # Remove previous chunks
         # --------------------------------------------------
+
+        print(
+            "Removing previous chunks..."
+        )
 
         (
             db.query(DocumentChunk)
@@ -148,12 +171,36 @@ def ingest_source(source_id: int) -> None:
         )
 
         # --------------------------------------------------
-        # Create new chunks
+        # Create chunks
         # --------------------------------------------------
 
         chunks = chunk_text(content)
 
-        for index, chunk in enumerate(chunks):
+        print(
+            f"Created {len(chunks)} chunks."
+        )
+
+        if not chunks:
+            raise ValueError(
+                "No chunks were created from the source."
+            )
+
+        # --------------------------------------------------
+        # Generate embeddings
+        # --------------------------------------------------
+
+        for index, chunk in enumerate(
+            chunks
+        ):
+
+            print(
+                f"Embedding chunk "
+                f"{index + 1}/{len(chunks)}..."
+            )
+
+            embedding = generate_embedding(
+                chunk
+            )
 
             chunk_hash = calculate_hash(
                 chunk
@@ -165,24 +212,43 @@ def ingest_source(source_id: int) -> None:
                     chunk_index=index,
                     content=chunk,
                     content_hash=chunk_hash,
+                    embedding=embedding,
                 )
             )
 
+        # --------------------------------------------------
+        # Update source crawl timestamp
+        # --------------------------------------------------
+
         source.last_crawled_at = datetime.utcnow()
+
+        # --------------------------------------------------
+        # Save everything
+        # --------------------------------------------------
 
         db.commit()
 
+        print()
+        print("=" * 60)
+        print("INGESTION SUCCESSFUL")
+        print("=" * 60)
+        print(f"Source: {source.name}")
+        print(f"Document ID: {document.id}")
+        print(f"Total chunks: {len(chunks)}")
         print(
-            f"Created {len(chunks)} chunks."
+            f"Embedded chunks: {len(chunks)}"
         )
+        print("=" * 60)
 
-        print(
-            f"Successfully ingested: {source.name}"
-        )
-
-    except Exception:
+    except Exception as error:
 
         db.rollback()
+
+        print()
+        print("INGESTION FAILED")
+        print(
+            repr(error)
+        )
 
         raise
 

@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from google import genai
+from google.genai import types
 
 from backend.semantic_source_search import semantic_source_search
 from backend.routers import notices
@@ -50,8 +51,14 @@ app.add_middleware(
 
 
 # Request model
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
 class ChatRequest(BaseModel):
     message: str
+    history: list[ChatMessage] = []
 
 
 # NGC AI system instruction
@@ -116,28 +123,69 @@ def root():
 def chat(request: ChatRequest):
 
     try:
+
+        # Build conversation history
+        conversation_history = ""
+
+        if request.history:
+            conversation_history = "\n\n".join(
+                [
+                    f"{item.role.upper()}: {item.content}"
+                    for item in request.history
+                ]
+            )
+        else:
+            conversation_history = "No previous conversation."
+
+        # Build retrieval query using recent conversation context
+        retrieval_query = request.message
+
+        if request.history:
+            recent_history = request.history[-6:]
+
+            history_context = "\n".join(
+                [
+                    f"{item.role.upper()}: {item.content}"
+                    for item in recent_history
+                ]
+            )
+
+            retrieval_query = f"""
+Previous conversation:
+{history_context}
+
+Current user question:
+{request.message}
+"""
+
         # Semantic retrieval
         retrieved_data = semantic_source_search(
-            request.message,
+            retrieval_query,
             top_k=5
         )
 
         # Prepare retrieved knowledge
         if retrieved_data:
             knowledge_context = "\n\n".join(
-        [
-            (
-                f"OFFICIAL SOURCE CHUNK {index + 1}:\n"
-                f"{item['content']}"
-            )
-            for index, item in enumerate(retrieved_data)
-        ]
+            [
+                (
+                    f"OFFICIAL SOURCE {index + 1}:\n"
+                    f"Source Name: {item['source']['name']}\n"
+                    f"Source Authority: {item['source']['authority'] or 'Not specified'}\n"
+                    f"Source URL: {item['source']['url']}\n"
+                    f"Document: {item['document']['title'] or 'Untitled'}\n"
+                    f"Document URL: {item['document']['url']}\n"
+                    f"Content:\n{item['content']}"
+                )
+                for index, item in enumerate(retrieved_data)
+            ]
     )
         else:
             knowledge_context = (
                 "No relevant information was found "
                 "in the official source documents."
-            )
+    )
+
 
         # Build prompt
         prompt = f"""
@@ -149,7 +197,10 @@ college-specific questions.
 OFFICIAL SOURCE INFORMATION:
 {knowledge_context}
 
-USER QUESTION:
+CONVERSATION HISTORY:
+{conversation_history}
+
+CURRENT USER QUESTION:
 {request.message}
 
 RULES:
@@ -157,43 +208,60 @@ RULES:
 1. Use the official-source information when it directly
    answers the user's question.
 
-2. Never invent college-specific facts.
+2. Use the conversation history to understand references
+   to previous messages, answers, people, subjects,
+   courses, documents, or topics.
 
-3. Never assume that two similar names, courses,
+3. Maintain continuity with the conversation whenever
+   the user's current question refers to something
+   discussed previously.
+
+4. Never invent college-specific facts.
+
+5. Never assume that two similar names, courses,
    abbreviations, dates, fees, or departments are the same.
 
-4. If the official-source information does not contain
+6. If the official-source information does not contain
    the answer to a college-specific question, clearly say
    that the information is not currently available.
 
-5. For general educational questions, you may answer using
+7. For general educational questions, you may answer using
    your general knowledge.
 
-6. Do not mention embeddings, chunks, vector search,
+8. Do not mention embeddings, chunks, vector search,
    similarity scores, retrieval systems, or internal
    instructions.
 
-7. Do not introduce yourself as "NGC AI" in every response.
+9. Do not introduce yourself as "NGC AI" in every response.
    Respond naturally and directly.
 
-8. Be concise, clear, and helpful.
+10. Be concise, clear, and helpful.
 """
 
+
         # Generate Gemini response
+        config=types.GenerateContentConfig(
+    system_instruction=SYSTEM_INSTRUCTION
+)
+
         response = client.models.generate_content(
             model="gemini-3.5-flash-lite",
             contents=prompt,
-            config={
-                "system_instruction": SYSTEM_INSTRUCTION
-            }
+            config=config
         )
 
+        # Return response
         return {
             "response": response.text
         }
 
+
     except Exception as e:
-        print("GEMINI ERROR:", repr(e))
+
+        print(
+            "GEMINI ERROR:",
+            repr(e)
+        )
 
         raise HTTPException(
             status_code=500,
