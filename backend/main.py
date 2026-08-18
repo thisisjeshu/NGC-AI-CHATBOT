@@ -17,7 +17,7 @@ from fastapi.staticfiles import StaticFiles
 from backend.routers import sources
 
 # Load environment variables
-load_dotenv()
+load_dotenv(override=True)
 
 API_KEY = os.getenv("GEMINI_API_KEY")
 
